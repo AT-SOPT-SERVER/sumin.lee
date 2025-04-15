@@ -1,15 +1,18 @@
 package org.sopt.domain;
 
+import java.time.LocalDateTime;
+
 public class Post {
 
-    public Object remove;
-    private int id; //private -> PostController,PostService,PostRepository에서 이 값들에 접근 및 수정하려면 -> getter,setter필요
+    private int id;
     private String title;
+    private final LocalDateTime createdAt;
 
     //생성자
     public Post(int id,String title){
         this.id = id;
         this.title = title;
+        this.createdAt = LocalDateTime.now();
     }
 
     public int getId(){
@@ -20,4 +23,13 @@ public class Post {
         return this.title;
     }
 
+
+
+    public void updateTitle(String newTitle){
+        this.title = newTitle;
+    }
+
+    public LocalDateTime getCreatedAt(){
+        return createdAt;
+    }
 }

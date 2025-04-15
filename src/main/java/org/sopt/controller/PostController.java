@@ -8,14 +8,12 @@ import java.util.List;
 
 public class PostController {
     private PostService postService = new PostService();
-    private int postId;
 
     public void createPost(String title){
         if (title == null ||  title.length()>30){
             throw new IllegalArgumentException("제목은 1자 이상 30자 이하여야함");
         }
-        Post post = new Post(postId++,title);
-        postService.createPost(post);
+        postService.createPost(title);
     }
 
     public List<Post> getAllPosts(){
@@ -33,7 +31,11 @@ public class PostController {
         if (newTitle == null ||  newTitle.length()>30){
             throw new IllegalArgumentException("제목은 1자 이상 30자 이하여야함");
         }
-        return postService.updatePostById(id,newTitle);
+        return postService.updatePostTitle(id,newTitle);
+    }
+
+    public List<Post> searchPostsByKeyword(String keyword){
+        return postService.searchPostsByTitle(keyword);
     }
 
 }
