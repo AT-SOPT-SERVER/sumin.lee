@@ -15,6 +15,11 @@ public class Post {
         this.createdAt = LocalDateTime.now();
     }
 
+    public Post(int id, String title, LocalDateTime createdAt) {
+        this.id = id;
+        this.title = title;
+        this.createdAt = createdAt;
+    }
     public int getId(){
         return this.id;
     }

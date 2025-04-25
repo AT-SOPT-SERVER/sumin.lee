@@ -12,7 +12,7 @@ public class InMemoryPostRepository implements PostRepository{
 
     @Override
     public void save(Post post){
-        postMap.put(post.getId(),post);
+        postMap.put(post.getId(), post);
     }
 
     @Override
