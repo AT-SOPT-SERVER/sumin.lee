@@ -3,6 +3,7 @@ package org.sopt.service;
 import org.sopt.domain.Post;
 import org.sopt.exception.DuplicatePostTitleException;
 import org.sopt.exception.PostNotFoundException;
+import org.sopt.repository.PostFileRepository;
 import org.sopt.repository.PostRepository;
 
 import java.time.Duration;
@@ -11,12 +12,16 @@ import java.util.List;
 
 import static org.sopt.util.PostIdUtil.generateNewId;
 
-public class PostService { //from 레포지토리 to 컨트롤러
+public class PostService {
 
     private PostRepository postRepository;
 
     private static final long MINIMUM_TIME_BETWEEN_POSTS = 3;
 
+
+    public PostService() {
+        this.postRepository = new PostFileRepository();
+    }
     public void createPost(String title) {
         if (postRepository.isExistByTitle(title)) {
             throw new DuplicatePostTitleException();
