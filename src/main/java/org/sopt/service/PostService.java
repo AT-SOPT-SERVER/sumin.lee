@@ -3,69 +3,79 @@ package org.sopt.service;
 import org.sopt.domain.Post;
 import org.sopt.exception.DuplicatePostTitleException;
 import org.sopt.exception.PostNotFoundException;
-import org.sopt.repository.PostFileRepository;
 import org.sopt.repository.PostRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.sopt.dto.PostResponse;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.time.Duration;
+import java.util.stream.Collectors;
 
-import static org.sopt.util.PostIdUtil.generateNewId;
-
+@Service
 public class PostService {
 
     private PostRepository postRepository;
-
+    public PostService(PostRepository postRepository) {
+        this.postRepository = postRepository;
+    }
     private static final long MINIMUM_TIME_BETWEEN_POSTS = 3;
 
 
-    public PostService() {
-        this.postRepository = new PostFileRepository();
-    }
     public void createPost(String title) {
-        if (postRepository.isExistByTitle(title)) {
+        if (postRepository.existsByTitle(title)) {
             throw new DuplicatePostTitleException();
         }
 
-        List<Post> allPosts = postRepository.findAll();
-        checkLastPostTime(allPosts);
+        Post lastPost = postRepository.findTopByOrderByCreatedAtDesc();
+        checkLastPostTime(lastPost);
 
-        Post post = new Post(generateNewId(allPosts), title);
+        Post post = new Post(title);
         postRepository.save(post);
     }
 
-    public List<Post> getAllPost() {
-        return postRepository.findAll();
+    public List<PostResponse> getAllPost() {
+        List<Post> posts = postRepository.findAll();
+        return posts.stream()
+                .map(post -> new PostResponse(post.getTitle()))
+                .collect(Collectors.toList());
     }
 
 
-    public Post getPostById(int id) {
-        return postRepository.findOneById(id).orElseThrow(()-> new PostNotFoundException());
+    public PostResponse getPostById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException());
+        return new PostResponse(post.getTitle());
+
     }
 
-    public boolean deletePostById(int id) {
-        return postRepository.deletePostById(id);
+    public void deletePostById(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new PostNotFoundException());
+        postRepository.deleteById(id);
     }
 
-    public boolean updatePostTitle(int updatePostId, String newTitle) {
+    @Transactional
+    public void updatePostTitle(Long updatePostId, String newTitle) {
 
-        if (postRepository.isExistByTitle(newTitle)) {
+        if (newTitle == null || newTitle.length() > 30) {
+            throw new IllegalArgumentException("제목은 1자 이상 30자 이하여야함");
+        }
+
+        if (postRepository.existsByTitle(newTitle)) {
             throw new DuplicatePostTitleException();
         }
 
-        Post post = postRepository.findOneById(updatePostId).orElseThrow(() -> new PostNotFoundException());
+        Post post = postRepository.findById(updatePostId).orElseThrow(() -> new PostNotFoundException());
 
         post.updateTitle(newTitle);
 
-        postRepository.save(post);
-        return true;
-
     }
 
-    public void checkLastPostTime(List<Post> posts){
-        if (posts.isEmpty()) return;
+    public void checkLastPostTime(Post lastPost){
 
-        Post lastPost = posts.get(posts.size()-1);
+        if (lastPost == null) {
+            return; // 첫 번째 게시글이므로 시간 제한을 적용할 필요 없음
+        }
         LocalDateTime lastTime = lastPost.getCreatedAt();
         LocalDateTime now = LocalDateTime.now();
 
@@ -80,8 +90,15 @@ public class PostService {
         }
     }
 
-    public List<Post> searchPostsByTitle(String title){
-        return postRepository.findByTitle(title);
+    public List<PostResponse> searchPostsByTitle(String title){
+        List<Post> posts = postRepository.findByTitleContaining(title);
+        if (posts.isEmpty()) {
+            throw new PostNotFoundException();
+        }
+
+        return posts.stream()
+                .map(post -> new PostResponse(post.getTitle()))
+                .collect(Collectors.toList());
     }
 
 

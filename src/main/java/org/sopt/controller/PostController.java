@@ -2,39 +2,50 @@ package org.sopt.controller;
 
 
 import org.sopt.domain.Post;
+import org.sopt.dto.PostRequest;
+import org.sopt.dto.PostResponse;
+import org.sopt.dto.PostUpdateRequest;
 import org.sopt.service.PostService;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-public class PostController {
-    private PostService postService = new PostService();
 
-    public void createPost(String title){
-        if (title == null ||  title.length()>30){
-            throw new IllegalArgumentException("제목은 1자 이상 30자 이하여야함");
-        }
-        postService.createPost(title);
+@RestController
+public class PostController {
+    private final PostService postService;
+
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
+    @PostMapping("/post")
+    public void createPost(@RequestBody final PostRequest postRequest) {
+        postService.createPost(postRequest.title());
     }
 
-    public List<Post> getAllPosts(){
+    @GetMapping("/post")
+    public List<PostResponse> getAllPosts(){
         return postService.getAllPost();
     }
 
-    public Post getPostById(int id) {
-        return postService.getPostById(id);
+
+    @GetMapping("/post/{postId}")
+    public PostResponse getPostById(@PathVariable Long postId) {
+        return postService.getPostById(postId);
     }
 
-    public boolean deletePostById(int id) {
-        return postService.deletePostById(id);
-    }
-    public boolean updatePostTitle(int id,String newTitle) {
-        if (newTitle == null ||  newTitle.length()>30){
-            throw new IllegalArgumentException("제목은 1자 이상 30자 이하여야함");
-        }
-        return postService.updatePostTitle(id,newTitle);
+    @DeleteMapping("/post/{postId}")
+    public void deletePostById(@PathVariable Long postId) {
+        postService.deletePostById(postId);
     }
 
-    public List<Post> searchPostsByKeyword(String keyword){
+    @PatchMapping("/post")
+    public void updatePostTitle(@RequestBody final PostUpdateRequest postUpdateRequest) {
+        postService.updatePostTitle(postUpdateRequest.id(),postUpdateRequest.newTitle());
+    }
+
+    @GetMapping("/post/search")
+    public List<PostResponse> searchPostsByKeyword(@RequestParam String keyword){
         return postService.searchPostsByTitle(keyword);
     }
 
