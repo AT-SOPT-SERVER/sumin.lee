@@ -1,4 +1,6 @@
 package org.sopt.dto;
 
-public record PostResponse(String title) {
+import java.time.LocalDateTime;
+
+public record PostResponse(Long id, String title, LocalDateTime createdAt) {
 }

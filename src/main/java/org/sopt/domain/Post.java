@@ -21,9 +21,10 @@ public class Post {
 
     public Post(String title) {
         this.title = title;
+        this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() {
+    public Long getPostId() {
         return id;
     }
 
