@@ -1,10 +1,10 @@
 package org.sopt.controller;
 
 
-import org.sopt.domain.Post;
-import org.sopt.dto.PostRequest;
-import org.sopt.dto.PostResponse;
-import org.sopt.dto.PostUpdateRequest;
+import org.sopt.dto.post.request.PostRequest;
+import org.sopt.dto.post.response.PostDetailResponse;
+import org.sopt.dto.post.response.PostResponse;
+import org.sopt.dto.post.request.PostUpdateRequest;
 import org.sopt.global.dto.ResponseDTO;
 import org.sopt.service.PostService;
 import org.springframework.http.HttpStatus;
@@ -24,14 +24,14 @@ public class PostController {
 
 
     @PostMapping("/post")
-    public ResponseEntity<ResponseDTO<Void>> createPost(@RequestBody final PostRequest postRequest) {
-        postService.createPost(postRequest.title());
+    public ResponseEntity<ResponseDTO<Void>> createPost(@RequestHeader Long userId, @RequestBody final PostRequest postRequest) {
+        postService.createPost(userId,postRequest.title(),postRequest.content());
 
         return ResponseEntity.ok(ResponseDTO.success(null));
     }
 
     @GetMapping("/post")
-    public ResponseEntity<ResponseDTO<List<PostResponse>>>getAllPosts(){
+    public ResponseEntity<ResponseDTO<List<PostResponse>>> getAllPosts() {
 
         List<PostResponse> results = postService.getAllPosts();
         return ResponseEntity.status(HttpStatus.OK).body(ResponseDTO.success(results));
@@ -39,7 +39,7 @@ public class PostController {
 
 
     @GetMapping("/post/{postId}")
-    public PostResponse getPostById(@PathVariable Long postId) {
+    public PostDetailResponse getPostById(@PathVariable Long postId) {
         return postService.getPostById(postId);
     }
 
@@ -49,12 +49,12 @@ public class PostController {
     }
 
     @PatchMapping("/post/{postId}")
-    public void updatePostTitle(@PathVariable Long postId ,@RequestBody final PostUpdateRequest postUpdateRequest) {
-        postService.updatePostTitle(postId,postUpdateRequest.title());
+    public void updatePostTitle(@PathVariable Long postId, @RequestBody final PostUpdateRequest postRequest) {
+        postService.updatePostTitle(postId, postRequest.title(),postRequest.content());
     }
 
     @GetMapping("/post/search")
-    public List<PostResponse> searchPostsByKeyword(@RequestParam String keyword){
+    public List<PostResponse> searchPostsByKeyword(@RequestParam String keyword) {
         return postService.searchPostsByTitle(keyword);
     }
 

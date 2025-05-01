@@ -1,14 +1,16 @@
 package org.sopt.service;
 
 import org.sopt.domain.Post;
-import org.sopt.exception.DuplicatePostTitleException;
-import org.sopt.exception.PostNotFoundException;
+import org.sopt.domain.User;
+import org.sopt.dto.post.response.PostDetailResponse;
 import org.sopt.global.exeption.BusinessException;
 import org.sopt.global.messeage.business.PostErrorMessage;
+import org.sopt.global.messeage.business.UserErrorMessage;
 import org.sopt.repository.PostRepository;
+import org.sopt.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.sopt.dto.PostResponse;
+import org.sopt.dto.post.response.PostResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,13 +21,15 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private PostRepository postRepository;
-    public PostService(PostRepository postRepository) {
+    private UserRepository userRepository;
+    public PostService(PostRepository postRepository,UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
     private static final long MINIMUM_TIME_BETWEEN_POSTS = 3;
 
 
-    public void createPost(String title) {
+    public void createPost(Long userId, String title,String content) {
         if (postRepository.existsByTitle(title)) {
             throw new BusinessException(PostErrorMessage.POST_TITLE_DUPLICATE);
         }
@@ -33,34 +37,33 @@ public class PostService {
         Post lastPost = postRepository.findTopByOrderByCreatedAtDesc();
         checkLastPostTime(lastPost);
 
-        Post post = new Post(title);
+        User user = userRepository.findById(userId).orElseThrow(()-> new BusinessException(UserErrorMessage.USER_NOT_FOUND));
+        Post post = new Post(title,content,user);
         postRepository.save(post);
     }
 
     public List<PostResponse> getAllPosts() {
         List<Post> posts = postRepository.findAll();
         return posts.stream()
-                .map(post -> new PostResponse(post.getPostId(),post.getTitle(),post.getCreatedAt()))
+                .map(post -> new PostResponse(post.getTitle(),post.getUser().getUserName()))
                 .collect(Collectors.toList());
     }
 
 
-    public PostResponse getPostById(Long id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new BusinessException(PostErrorMessage.POST_NOT_FOUND));
-        return new PostResponse(post.getPostId(), post.getTitle(), post.getCreatedAt());
+    public PostDetailResponse getPostById(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessException(PostErrorMessage.POST_NOT_FOUND));
+        return new PostDetailResponse( post.getTitle(),post.getContent(), post.getUser().getUserName());
 
     }
 
-    public void deletePostById(Long id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new BusinessException(PostErrorMessage.POST_NOT_FOUND));
-        postRepository.deleteById(id);
+    public void deletePostById(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessException(PostErrorMessage.POST_NOT_FOUND));
+        postRepository.deleteById(postId);
     }
 
     @Transactional
-    public void updatePostTitle(Long updatePostId, String newTitle) {
+    public void updatePostTitle(Long updatePostId, String newTitle , String newContent) {
 
-
-        System.out.println("New Title: " + newTitle);
         if (newTitle == null || newTitle.length() > 30) {
             throw new BusinessException(PostErrorMessage.INVALID_TITLE_LENGTH);
         }
@@ -71,7 +74,7 @@ public class PostService {
 
         Post post = postRepository.findById(updatePostId).orElseThrow(() -> new BusinessException(PostErrorMessage.POST_NOT_FOUND));
 
-        post.updateTitle(newTitle);
+        post.updateContent(newTitle,newContent);
 
     }
 
@@ -97,7 +100,7 @@ public class PostService {
         }
 
         return posts.stream()
-                .map(post -> new PostResponse(post.getPostId(),post.getTitle(),post.getCreatedAt()))
+                .map(post -> new PostResponse(post.getTitle(),post.getUser().getUserName()))
                 .collect(Collectors.toList());
     }
 
