@@ -1,4 +1,8 @@
 package org.sopt.dto;
 
-public record PostRequest (String title){
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+public record PostRequest (String title , List<MultipartFile> photos){
 }

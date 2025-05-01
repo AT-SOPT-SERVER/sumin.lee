@@ -1,27 +1,36 @@
 package org.sopt.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import org.sopt.global.StringListConverter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     LocalDateTime createdAt;
 
-    public Post() {
+
+    @Convert(converter = StringListConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private List<String> photoUrls;
+
+
+
+    protected Post() {
 
     }
 
-    public Post(String title) {
+
+    public Post(String title, List<String> photoUrls) {
         this.title = title;
         this.createdAt = LocalDateTime.now();
+        this.photoUrls = photoUrls;
     }
 
     public Long getPostId() {
@@ -33,6 +42,10 @@ public class Post {
     }
     public LocalDateTime getCreatedAt() {
         return this.createdAt;
+    }
+
+    public List<String> getPhotoUrls() {
+        return this.photoUrls;
     }
     public void updateTitle(String newTitle) {
         this.title = newTitle;
