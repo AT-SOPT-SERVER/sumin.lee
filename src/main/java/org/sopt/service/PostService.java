@@ -25,7 +25,7 @@ public class PostService {
     private static final long MINIMUM_TIME_BETWEEN_POSTS = 3;
 
 
-    public void createPost(String title) {
+    public void createPost(String title,List<String> photoUrlList) {
         if (postRepository.existsByTitle(title)) {
             throw new BusinessException(PostErrorMessage.POST_TITLE_DUPLICATE);
         }
@@ -33,21 +33,21 @@ public class PostService {
         Post lastPost = postRepository.findTopByOrderByCreatedAtDesc();
         checkLastPostTime(lastPost);
 
-        Post post = new Post(title);
+        Post post = new Post(title,photoUrlList);
         postRepository.save(post);
     }
 
     public List<PostResponse> getAllPosts() {
         List<Post> posts = postRepository.findAll();
         return posts.stream()
-                .map(post -> new PostResponse(post.getPostId(),post.getTitle(),post.getCreatedAt()))
+                .map(post -> new PostResponse(post.getPostId(),post.getTitle(), post.getPhotoUrls(),post.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 
 
     public PostResponse getPostById(Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new BusinessException(PostErrorMessage.POST_NOT_FOUND));
-        return new PostResponse(post.getPostId(), post.getTitle(), post.getCreatedAt());
+        return new PostResponse(post.getPostId(), post.getTitle(), post.getPhotoUrls(),post.getCreatedAt());
 
     }
 
@@ -97,7 +97,7 @@ public class PostService {
         }
 
         return posts.stream()
-                .map(post -> new PostResponse(post.getPostId(),post.getTitle(),post.getCreatedAt()))
+                .map(post -> new PostResponse(post.getPostId(),post.getTitle(),post.getPhotoUrls(),post.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 

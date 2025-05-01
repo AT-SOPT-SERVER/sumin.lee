@@ -22,6 +22,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'mysql:mysql-connector-java:8.0.29'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.253'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0' // Swagger UI 추가
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     compileOnly 'org.projectlombok:lombok:1.18.24'
