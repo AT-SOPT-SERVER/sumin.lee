@@ -1,9 +1,8 @@
 package org.sopt.controller;
 
 
-import org.sopt.dto.post.response.PostDetailResponse;
-import org.sopt.dto.user.UserCreateRequestDTO;
-import org.sopt.dto.user.UserResponseDTO;
+import org.sopt.dto.user.UserCreateRequest;
+import org.sopt.dto.user.UserResponse;
 import org.sopt.global.dto.ResponseDTO;
 import org.sopt.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +20,13 @@ public class UserController {
 
 
     @PostMapping("/user")
-    public ResponseEntity<ResponseDTO<Void>> createUser(@RequestBody UserCreateRequestDTO requestDTO){
+    public ResponseEntity<ResponseDTO<Void>> createUser(@RequestBody UserCreateRequest requestDTO){
         userService.createUser(requestDTO.userName());
         return ResponseEntity.ok(ResponseDTO.success(null));
     }
 
     @GetMapping("/user/search")
-    public List<UserResponseDTO> searchUsersByKeyword(@RequestParam String keyword) {
+    public List<UserResponse> searchUsersByKeyword(@RequestParam String keyword) {
         return userService.searchUsersByName(keyword);
     }
 

@@ -2,7 +2,7 @@ package org.sopt.service;
 
 
 import org.sopt.domain.user.User;
-import org.sopt.dto.user.UserResponseDTO;
+import org.sopt.dto.user.UserResponse;
 import org.sopt.global.exeption.BusinessException;
 import org.sopt.global.messeage.business.UserErrorMessage;
 import org.sopt.repository.UserRepository;
@@ -30,14 +30,14 @@ public class UserService {
     }
 
 
-    public List<UserResponseDTO> searchUsersByName(String userName){
+    public List<UserResponse> searchUsersByName(String userName){
         List<User> users = userRepository.findByUserNameContaining(userName);
         if (users.isEmpty()) {
             throw new BusinessException(UserErrorMessage.USER_NOT_FOUND);
         }
 
         return users.stream()
-                .map(user -> new UserResponseDTO(user.getUserId(),user.getUserName()))
+                .map(user -> new UserResponse(user.getUserId(),user.getUserName()))
                 .toList();
     }
 
