@@ -1,7 +1,8 @@
 package org.sopt.service;
 
-import org.sopt.domain.Post;
-import org.sopt.domain.User;
+import org.sopt.domain.post.Post;
+import org.sopt.domain.post.Tag;
+import org.sopt.domain.user.User;
 import org.sopt.dto.post.response.PostDetailResponse;
 import org.sopt.global.exeption.BusinessException;
 import org.sopt.global.messeage.business.PostErrorMessage;
@@ -13,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.sopt.dto.post.response.PostResponse;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.time.Duration;
-import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -29,16 +30,25 @@ public class PostService {
     private static final long MINIMUM_TIME_BETWEEN_POSTS = 3;
 
 
-    public void createPost(Long userId, String title,String content) {
+    public void createPost(Long userId, String title,String content,Tag tag) {
+
+
         if (postRepository.existsByTitle(title)) {
             throw new BusinessException(PostErrorMessage.POST_TITLE_DUPLICATE);
+        }
+        if (title == null || title.length() > 30) {
+            throw new BusinessException(PostErrorMessage.INVALID_TITLE_LENGTH);
+        }
+
+        if (content.length() > 1000) {
+            throw new BusinessException(PostErrorMessage.INVALID_CONTENT_LENGTH);
         }
 
         Post lastPost = postRepository.findTopByOrderByCreatedAtDesc();
         checkLastPostTime(lastPost);
 
         User user = userRepository.findById(userId).orElseThrow(()-> new BusinessException(UserErrorMessage.USER_NOT_FOUND));
-        Post post = new Post(title,content,user);
+        Post post = new Post(title,content,user,tag);
         postRepository.save(post);
     }
 
@@ -46,13 +56,13 @@ public class PostService {
         List<Post> posts = postRepository.findAll();
         return posts.stream()
                 .map(post -> new PostResponse(post.getTitle(),post.getUser().getUserName()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
     public PostDetailResponse getPostById(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new BusinessException(PostErrorMessage.POST_NOT_FOUND));
-        return new PostDetailResponse( post.getTitle(),post.getContent(), post.getUser().getUserName());
+        return new PostDetailResponse(post.getTitle(),post.getContent(),post.getTag(), post.getUser().getUserName());
 
     }
 
@@ -93,16 +103,45 @@ public class PostService {
         }
     }
 
-    public List<PostResponse> searchPostsByTitle(String title){
+    public List<PostDetailResponse> searchPostsByTitle(String title){
         List<Post> posts = postRepository.findByTitleContaining(title);
+        if (posts.isEmpty()) {
+            throw new BusinessException(PostErrorMessage.POST_NOT_FOUND);
+        }
+        return posts.stream()
+                .map(post -> new PostDetailResponse(post.getTitle(),post.getContent(),post.getTag(),post.getUser().getUserName()))
+                .toList();
+    }
+
+    public List<PostDetailResponse> searchPostsByTag(Tag tag){
+        List<Post> posts = postRepository.findByTag(tag);
+        if (posts.isEmpty()){
+            throw new BusinessException(PostErrorMessage.POST_NOT_FOUND);
+        }
+
+        return posts.stream()
+                .map(post -> new PostDetailResponse(post.getTitle(),post.getContent(),post.getTag(),post.getUser().getUserName())).toList();
+    }
+    public List<PostDetailResponse> searchPostsByUserName(String keyword) {
+
+        List<User> users = userRepository.findByUserNameContaining(keyword);
+        if (users.isEmpty()) {
+            throw new BusinessException(UserErrorMessage.USER_NOT_FOUND);
+        }
+
+
+
+        List<Post> posts = new ArrayList<>();
+        for (User user : users) {
+            List<Post> userPosts = postRepository.findByUser(user);
+            posts.addAll(userPosts);
+        }
         if (posts.isEmpty()) {
             throw new BusinessException(PostErrorMessage.POST_NOT_FOUND);
         }
 
         return posts.stream()
-                .map(post -> new PostResponse(post.getTitle(),post.getUser().getUserName()))
-                .collect(Collectors.toList());
+                .map(post -> new PostDetailResponse(post.getTitle(), post.getContent(), post.getTag(), post.getUser().getUserName()))
+                .toList();
     }
-
-
 }

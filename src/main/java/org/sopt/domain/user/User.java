@@ -1,9 +1,9 @@
-package org.sopt.domain;
+package org.sopt.domain.user;
 
 
 import jakarta.persistence.*;
+import org.sopt.domain.post.Post;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

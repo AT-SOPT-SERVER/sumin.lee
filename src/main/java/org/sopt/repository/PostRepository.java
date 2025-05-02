@@ -1,19 +1,19 @@
 package org.sopt.repository;
 
-import org.sopt.domain.Post;
-import org.sopt.dto.post.response.PostResponse;
+import org.sopt.domain.post.Post;
+import org.sopt.domain.post.Tag;
+import org.sopt.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    //Optional<PostResponse> findByTitle(String title);
-    List<Post> findByUser_UserName(String userName);
     boolean existsByTitle(String title);
     List<Post> findByTitleContaining(String keyword);
     Post findTopByOrderByCreatedAtDesc();
+    List<Post> findByTag(Tag tag);
+    List<Post> findByUser(User user);
 }
 

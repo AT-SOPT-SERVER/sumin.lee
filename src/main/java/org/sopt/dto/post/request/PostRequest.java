@@ -1,4 +1,6 @@
 package org.sopt.dto.post.request;
 
-public record PostRequest (String title,String content){
+import org.sopt.domain.post.Tag;
+
+public record PostRequest (String title, String content, Tag tag){
 }

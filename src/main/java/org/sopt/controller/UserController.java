@@ -1,14 +1,15 @@
 package org.sopt.controller;
 
 
+import org.sopt.dto.post.response.PostDetailResponse;
 import org.sopt.dto.user.UserCreateRequestDTO;
+import org.sopt.dto.user.UserResponseDTO;
 import org.sopt.global.dto.ResponseDTO;
 import org.sopt.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class UserController {
@@ -23,6 +24,11 @@ public class UserController {
     public ResponseEntity<ResponseDTO<Void>> createUser(@RequestBody UserCreateRequestDTO requestDTO){
         userService.createUser(requestDTO.userName());
         return ResponseEntity.ok(ResponseDTO.success(null));
+    }
+
+    @GetMapping("/user/search")
+    public List<UserResponseDTO> searchUsersByKeyword(@RequestParam String keyword) {
+        return userService.searchUsersByName(keyword);
     }
 
 }

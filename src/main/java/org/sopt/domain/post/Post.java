@@ -1,6 +1,7 @@
-package org.sopt.domain;
+package org.sopt.domain.post;
 
 import jakarta.persistence.*;
+import org.sopt.domain.user.User;
 
 import java.time.LocalDateTime;
 
@@ -18,14 +19,19 @@ public class Post {
     private String content;
     LocalDateTime createdAt;
 
+
+    @Enumerated(EnumType.STRING)
+    private Tag tag;
+
     public Post() {
 
     }
 
-    public Post(String title,String content, User user) {
+    public Post(String title,String content, User user,Tag tag) {
         this.title = title;
         this.content = content;
         this.user = user;
+        this.tag = tag;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -47,7 +53,9 @@ public class Post {
         this.title = newTitle;
         this.content = content;
     }
-
+    public Tag getTag(){
+        return tag;
+    }
     public User getUser() {
         return user;
     }
