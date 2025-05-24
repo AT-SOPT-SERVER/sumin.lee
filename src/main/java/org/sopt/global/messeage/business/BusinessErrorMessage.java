@@ -17,4 +17,5 @@ public enum BusinessErrorMessage implements DefaultErrorMessage{
     private final HttpStatus httpStatus;
     private final String message;
 
+
 }

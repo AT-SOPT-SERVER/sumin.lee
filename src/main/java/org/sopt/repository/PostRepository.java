@@ -1,38 +1,31 @@
 package org.sopt.repository;
 
-import org.sopt.domain.Post;
-import org.sopt.dto.PostResponse;
+import org.sopt.domain.post.Post;
+import org.sopt.domain.post.Tag;
+import org.sopt.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    Optional<PostResponse> findByTitle(String title);
     boolean existsByTitle(String title);
+
+
+    @Query(value = "SELECT * FROM post WHERE MATCH(title) AGAINST(:keyword IN NATURAL LANGUAGE MODE)", nativeQuery = true)
     List<Post> findByTitleContaining(String keyword);
+
     Post findTopByOrderByCreatedAtDesc();
+
+    @Query(value = "SELECT * FROM post WHERE tag_id = :tagId", nativeQuery = true)
+    List<Post> findByTag(Tag tag);
+
+    @Query(value = "SELECT * FROM post WHERE user_id = :userId", nativeQuery = true)
+    List<Post> findByUser(User user);
+
+
+
 }
 
-
-//package org.sopt.repository;
-//
-//
-//import org.sopt.domain.Post;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Optional;
-//
-//public interface PostRepository {
-//    List<Post> postList = new ArrayList<>();
-//    public void save(Post post);
-//    //전체 객체에 대한 조회
-//    public List<Post> findAll();
-//    public Optional<Post> findOneById(int id);
-//    public boolean deletePostById(int id);
-//    public boolean isExistByTitle(String title);
-//    List<Post> findByTitle(String title);
-//}
