@@ -6,7 +6,6 @@ import org.sopt.domain.user.User;
 import java.time.LocalDateTime;
 
 @Entity
-
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,6 +49,8 @@ public class Post {
     public LocalDateTime getCreatedAt() {
         return this.createdAt;
     }
+
+
     public void updateContent(String newTitle, String content) {
         this.title = newTitle;
         this.content = content;

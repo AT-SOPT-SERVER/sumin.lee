@@ -25,5 +25,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "SELECT * FROM post WHERE user_id = :userId", nativeQuery = true)
     List<Post> findByUser(User user);
 
+
+
 }
 
